@@ -1,0 +1,20 @@
+{
+    "name": "typetest-client",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "vite --port 30002",
+        "build": "vite build",
+        "preview": "vite preview --port 30002",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "solid-js": "^1.8.0"
+    },
+    "devDependencies": {
+        "vite": "^5.4.0",
+        "vite-plugin-solid": "^2.10.0",
+        "typescript": "^5.4.0",
+        "vitest": "^1.6.0"
+    }
+}

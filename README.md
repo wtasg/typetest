@@ -72,7 +72,7 @@ PostgreSQL is optional. The client works fully without it. When available, compl
 To configure the database connection, copy `.env.sample` to `.env` and update with your database credentials:
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Then edit `.env` with your database configuration:

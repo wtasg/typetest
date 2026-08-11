@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/wtasg/typetest/server/internal/api"
 	"github.com/wtasg/typetest/server/internal/database"
@@ -13,12 +14,45 @@ import (
 //go:embed migrations/*.sql
 var migrationFiles embed.FS
 
-const (
-	addr = ":30001"
-	dsn  = "host=localhost port=5432 dbname=typetest user=typetest1user password=typetest1password sslmode=disable"
-)
+func getDSN() string {
+	host := os.Getenv("DB_HOST")
+	if host == "" {
+		host = "localhost"
+	}
+	port := os.Getenv("DB_PORT")
+	if port == "" {
+		port = "5432"
+	}
+	dbname := os.Getenv("DB_NAME")
+	if dbname == "" {
+		dbname = "typetest"
+	}
+	user := os.Getenv("DB_USER")
+	if user == "" {
+		// fail
+		log.Fatal("DB_USER is not set")
+	}
+	password := os.Getenv("DB_PASSWORD")
+	if password == "" {
+		log.Fatal("DB_PASSWORD is not set")
+	}
+
+	return fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
+		host, port, dbname, user, password)
+}
+
+func getAddr() string {
+	addr := os.Getenv("SERVER_ADDR")
+	if addr == "" {
+		addr = ":30001"
+	}
+	return addr
+}
 
 func main() {
+	dsn := getDSN()
+	addr := getAddr()
+
 	db, err := database.Open(dsn)
 	if err != nil {
 		log.Printf("[db] unavailable: %v — running without persistence", err)

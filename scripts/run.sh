@@ -4,6 +4,11 @@ set -eu
 # Usage: run.sh [--execute]
 # Default: dry-run. Pass --execute to actually run dev servers.
 
+# Load environment variables from .env if it exists
+if [ -f .env ]; then
+	export $(grep -v '^#' .env | xargs)
+fi
+
 EXECUTE=false
 for arg in "$@"; do
 	case "$arg" in

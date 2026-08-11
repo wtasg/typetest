@@ -69,9 +69,20 @@ scripts/       build.sh · run.sh · test.sh
 
 PostgreSQL is optional. The client works fully without it. When available, completed runs and sources are synced after each run.
 
-```text
-host=localhost port=5432 dbname=typetest
-user=typetest1user password=typetest1password
+To configure the database connection, copy `.env.sample` to `.env` and update with your database credentials:
+
+```bash
+cp .env.sample .env
 ```
 
-Credentials live only in the server. They are never included in the client bundle.
+Then edit `.env` with your database configuration:
+
+```text
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=typetest
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+```
+
+Database credentials are stored only in the `.env` file (local development) and never included in the client bundle or version control.

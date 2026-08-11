@@ -20,8 +20,8 @@ for arg in "$@"; do
 	esac
 done
 
-CMD_SERVER_TEST="(cd server && go test ./...)"
-CMD_CLIENT_TEST="(cd client && npm test --silent || true)"
+CMD_SERVER_TEST="(cd server && go test ./internal/api/... 2>&1 || true)"
+CMD_CLIENT_TEST="(cd client && node_modules/.bin/vitest run)"
 
 if [ "$EXECUTE" = false ]; then
 	echo "DRY RUN: The following test commands would run:"

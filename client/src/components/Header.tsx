@@ -1,5 +1,5 @@
 import { Component } from 'solid-js';
-import { serverOnline } from '../state/app';
+import { serverOnline, setCurrentView } from '../state/app';
 import { settings, updateSettings } from '../state/settings';
 
 const TAB_OPTIONS = [
@@ -11,7 +11,7 @@ const TAB_OPTIONS = [
 
 const Header: Component = () => (
     <header class="header">
-        <span class="app-title">Typing Test</span>
+        <button class="app-title" onClick={() => setCurrentView('typing')}>Typing Test</button>
         <div class="header-right">
             <select
                 class="tab-select"

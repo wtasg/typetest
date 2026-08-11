@@ -61,6 +61,12 @@ body {
 }
 
 .app-title {
+    background: none;
+    border: none;
+    color: var(--fg);
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
     font-weight: 600;
     letter-spacing: .04em;
 }
@@ -127,6 +133,21 @@ body {
 
 .sidebar-nav li button:hover {
     background: var(--bg-surface);
+}
+
+.sidebar-section {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: .5rem 0;
+}
+
+.sidebar-section-label {
+    display: block;
+    padding: .3rem 1rem .1rem;
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--fg-dim);
 }
 
 .sidebar-bottom {
@@ -641,6 +662,102 @@ body {
 
 .run-acc {
     color: var(--fg-dim);
+}
+
+/* ── D3 Charts ── */
+.chart-section {
+    margin: 1.5rem 0;
+}
+
+.chart-section h3 {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--fg-dim);
+    margin-bottom: .5rem;
+}
+
+.d3-chart {
+    width: 100%;
+    display: block;
+    overflow: visible;
+}
+
+/* axes & labels */
+.d3-chart .domain {
+    stroke: var(--border);
+}
+
+.d3-chart .tick line {
+    stroke: var(--border);
+}
+
+.d3-chart .tick text,
+.d3-chart text {
+    fill: var(--fg-dim);
+    font-size: 11px;
+    font-family: var(--font-ui);
+}
+
+.d3-chart .axis-label {
+    fill: var(--fg-dim);
+    font-size: 11px;
+    font-family: var(--font-ui);
+}
+
+.d3-chart .grid .tick line {
+    stroke: var(--border);
+    stroke-dasharray: 3, 3;
+    opacity: .5;
+}
+
+.d3-chart .grid .domain {
+    display: none;
+}
+
+/* series */
+.d3-chart .chart-line-eff {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2px;
+}
+
+.d3-chart .chart-area-raw {
+    fill: var(--accent);
+    opacity: .12;
+}
+
+.d3-chart .dot-eff {
+    fill: var(--accent);
+    stroke: var(--bg);
+    stroke-width: 1.5px;
+}
+
+.d3-chart .bar-acc {
+    fill: var(--correct);
+    opacity: .75;
+}
+
+.d3-chart .bar-key {
+    fill: var(--accent);
+    opacity: .8;
+}
+
+.d3-chart .bar-key-label {
+    fill: var(--fg-dim);
+    font-size: 11px;
+    font-family: var(--font);
+}
+
+.d3-chart .bar-key-pct {
+    fill: var(--fg-dim);
+    font-size: 10px;
+    font-family: var(--font-ui);
+}
+
+.d3-chart .bar-iki {
+    fill: var(--accent);
+    opacity: .7;
 }
 
 /* ── Utilities ── */

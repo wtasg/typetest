@@ -1,5 +1,8 @@
 # Typing Test
 
+> **Live demo:** <https://wtasg.github.io/typetest>  
+> **Repo:** <https://github.com/wtasg/typetest>
+
 A distraction-free typing practice app for programmers. Offline-first, runs entirely in the browser, with optional PostgreSQL persistence via a Go API server.
 
 ## Stack

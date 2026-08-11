@@ -3,9 +3,16 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
+    "homepage": "https://wtasg.github.io/typetest",
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/wtasg/typetest.git"
+    },
     "scripts": {
         "dev": "vite --port 30002",
         "build": "vite build",
+        "predeploy": "VITE_BASE=/typetest/ vite build",
+        "deploy": "gh-pages -d dist",
         "preview": "vite preview --port 30002",
         "test": "vitest run"
     },
@@ -14,6 +21,7 @@
         "solid-js": "^1.9.14"
     },
     "devDependencies": {
+        "gh-pages": "^6.3.0",
         "typescript": "^7.0.2",
         "vite": "^8.2.1",
         "vite-plugin-solid": "^2.11.14",

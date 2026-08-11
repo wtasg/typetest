@@ -199,7 +199,7 @@ body {
 .c.current {
     color: var(--fg);
     background: var(--current-bg);
-    outline: 1px solid var(--accent);
+
 }
 
 .c.sp,
@@ -318,18 +318,24 @@ body {
     color: var(--fg-dim);
 }
 
+.source-edit,
 .source-delete {
     background: none;
     border: none;
     color: var(--fg-dim);
     cursor: pointer;
-    font-size: 1rem;
+    font-size: .9rem;
     padding: 0 .25rem;
     opacity: 0;
 }
 
+.source-item:hover .source-edit,
 .source-item:hover .source-delete {
     opacity: 1;
+}
+
+.source-edit:hover {
+    color: var(--accent);
 }
 
 .source-delete:hover {

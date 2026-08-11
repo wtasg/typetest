@@ -48,6 +48,18 @@ export async function getSelectedContent(): Promise<string | null> {
         : stored.content.slice(selectionStart, selectionEnd);
 }
 
+export async function updateSource(id: string, name: string, content: string): Promise<void> {
+    const meta = loadSourcesMeta();
+    const idx = meta.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    const contentHash = await sha256(content);
+    const updated: Source = { ...meta[idx], name, size: content.length, contentHash };
+    await saveSource({ ...updated, content });
+    meta[idx] = updated;
+    saveSourcesMeta(meta);
+    setSourcesState('sources', [...meta]);
+}
+
 export function removeSource(id: string): void {
     const meta = loadSourcesMeta().filter(s => s.id !== id);
     saveSourcesMeta(meta);

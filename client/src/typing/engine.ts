@@ -125,11 +125,8 @@ export class TypingEngine {
         }
 
         if (this.cursor >= this.target.length) {
-            const allCorrect = this.charStates.every(s => s === 'correct');
-            if (allCorrect) {
-                this.finish('COMPLETED');
-                return;
-            }
+            this.finish('COMPLETED');
+            return;
         }
 
         this.emit();

@@ -1,27 +1,69 @@
 import { Component, Show, createSignal } from 'solid-js';
-import { addSource } from '../state/sources';
+import { Source } from '../typing/types';
+import { addSource, updateSource } from '../state/sources';
+import { getSourceContent } from '../storage/indexedDb';
 
-const TextEditor: Component = () => {
-    const [open, setOpen] = createSignal(false);
-    const [name, setName] = createSignal('Untitled');
+interface Props {
+    /** When set the modal opens immediately in edit mode for this source. */
+    editSource?: Source;
+    onClose?: () => void;
+}
+
+const TextEditor: Component<Props> = props => {
+    const editing = () => !!props.editSource;
+
+    // For standalone "+ Add Text" button usage
+    const [addOpen, setAddOpen] = createSignal(false);
+    const open = () => editing() || addOpen();
+
+    const [name, setName] = createSignal('');
     const [text, setText] = createSignal('');
+
+    // Pre-populate when opened for editing
+    let loadedId = '';
+    function ensureLoaded() {
+        const src = props.editSource;
+        if (src && src.id !== loadedId) {
+            loadedId = src.id;
+            setName(src.name);
+            getSourceContent(src.id).then(s => setText(s?.content ?? ''));
+        }
+    }
+
+    function handleOpen() {
+        setName('Untitled');
+        setText('');
+        loadedId = '';
+        setAddOpen(true);
+    }
+
+    function handleClose() {
+        setAddOpen(false);
+        props.onClose?.();
+    }
 
     async function handleSave(): Promise<void> {
         const content = text().trim();
         if (!content) return;
-        await addSource(name() || 'Untitled', name() || 'Untitled', content);
-        setOpen(false);
-        setName('Untitled');
-        setText('');
+        const label = name().trim() || 'Untitled';
+        if (editing() && props.editSource) {
+            await updateSource(props.editSource.id, label, content);
+        } else {
+            await addSource(label, label, content);
+        }
+        handleClose();
     }
 
     return (
         <>
-            <button onClick={() => setOpen(true)}>+ Add Text</button>
+            <Show when={!editing()}>
+                <button onClick={handleOpen}>+ Add Text</button>
+            </Show>
             <Show when={open()}>
-                <div class="modal-overlay" onClick={() => setOpen(false)}>
+                {editing() && ensureLoaded()}
+                <div class="modal-overlay" onClick={handleClose}>
                     <div class="modal" onClick={e => e.stopPropagation()}>
-                        <h2>Add Text</h2>
+                        <h2>{editing() ? 'Edit Text' : 'Add Text'}</h2>
                         <input
                             type="text"
                             value={name()}
@@ -35,7 +77,7 @@ const TextEditor: Component = () => {
                             rows={14}
                         />
                         <div class="modal-actions">
-                            <button onClick={() => setOpen(false)}>Cancel</button>
+                            <button onClick={handleClose}>Cancel</button>
                             <button onClick={handleSave} disabled={!text().trim()}>Save</button>
                         </div>
                     </div>

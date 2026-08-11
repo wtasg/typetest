@@ -60,9 +60,12 @@ export function startRun(
     _engine.start(target);
 
     _ticker = setInterval(() => {
-        if (_engine && runState.status === 'RUNNING') {
-            setRunState('elapsedMs', _engine.getElapsedMs());
-        }
+        if (!_engine || runState.status !== 'RUNNING') return;
+        const elapsedMs = _engine.getElapsedMs();
+        const snap = _engine.snapshot();
+        const raw = computeRawMetrics(snap.events, elapsedMs, snap.incorrectKeystrokeCount);
+        const eff = computeEffectiveMetrics(snap.charStates, _engine.getWasEverIncorrect(), elapsedMs);
+        setRunState({ elapsedMs, effectiveWPM: eff.effectiveWPM, rawWPM: raw.rawWPM, accuracy: eff.accuracy });
     }, 250);
 }
 

@@ -26,6 +26,9 @@ cd client && npm install
 # Production build
 ./scripts/build.sh --execute
 
+# Deploy to GitHub Pages (gh-pages branch)
+./scripts/deploy.sh --execute
+
 # Tests
 ./scripts/test.sh --execute
 ```
@@ -62,7 +65,7 @@ server/        Go HTTP API
   migrations/  SQL schema files
 
 plans/1/       Specification, step plans, and fix log
-scripts/       build.sh · run.sh · test.sh
+scripts/       build.sh · deploy.sh · run.sh · test.sh
 ```
 
 ## Database

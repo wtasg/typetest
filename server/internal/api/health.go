@@ -24,7 +24,8 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 	json.NewEncoder(w).Encode(v) //nolint:errcheck
 }
 
-func readJSON(r *http.Request, v any) error {
+func readJSON(w http.ResponseWriter, r *http.Request, v any) error {
+	r.Body = http.MaxBytesReader(w, r.Body, 5<<20) // 5MB body limit to prevent OOM DoS
 	return json.NewDecoder(r.Body).Decode(v)
 }
 

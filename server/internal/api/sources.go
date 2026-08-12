@@ -71,7 +71,7 @@ func listSources(w http.ResponseWriter, db *sql.DB) {
 
 func createSource(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var s sourceRow
-	if err := readJSON(r, &s); err != nil {
+	if err := readJSON(w, r, &s); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

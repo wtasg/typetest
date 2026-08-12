@@ -37,8 +37,13 @@ func getDSN() string {
 		log.Fatal("DB_PASSWORD is not set")
 	}
 
-	return fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
-		host, port, dbname, user, password)
+	sslmode := os.Getenv("DB_SSLMODE")
+	if sslmode == "" {
+		sslmode = "disable"
+	}
+
+	return fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=%s",
+		host, port, dbname, user, password, sslmode)
 }
 
 func getAddr() string {

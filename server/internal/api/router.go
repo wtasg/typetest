@@ -3,12 +3,29 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"os"
+	"strings"
 )
 
-// cors adds permissive CORS headers for the SolidJS dev client on :30002.
+// cors validates request origin against ALLOWED_ORIGIN (defaulting to localhost origins).
 func cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
+
+		if origin != "" {
+			if allowedOrigin != "" {
+				if origin == allowedOrigin {
+					w.Header().Set("Access-Control-Allow-Origin", origin)
+				}
+			} else {
+				// Default behavior: allow localhost origins only (e.g. http://localhost:30002, http://127.0.0.1:30002)
+				if strings.HasPrefix(origin, "http://localhost:") || strings.HasPrefix(origin, "http://127.0.0.1:") || strings.HasPrefix(origin, "http://[::1]:") {
+					w.Header().Set("Access-Control-Allow-Origin", origin)
+				}
+			}
+		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		if r.Method == http.MethodOptions {

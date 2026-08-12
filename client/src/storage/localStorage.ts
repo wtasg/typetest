@@ -30,7 +30,7 @@ export const saveRunSummaries = (s: RunSummary[]): void => set(K.runSummaries, s
 export function addRunSummary(summary: RunSummary): void {
     const cur = loadRunSummaries();
     cur.unshift(summary);
-    saveRunSummaries(cur.slice(0, 500));
+    saveRunSummaries(cur.slice(0, 100));
 }
 
 export function updateSummarySync(runId: string, status: 'synced' | 'failed'): void {

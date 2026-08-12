@@ -83,16 +83,17 @@ type incomingRun struct {
 	Source        struct {
 		ID string `json:"id"`
 	} `json:"source"`
-	Target           string          `json:"target"`
-	Events           json.RawMessage `json:"events"`
-	Metrics          json.RawMessage `json:"metrics"`
-	RawMetrics       json.RawMessage `json:"-"`
-	EffectiveMetrics json.RawMessage `json:"-"`
+	Target  string          `json:"target"`
+	Events  json.RawMessage `json:"events"`
+	Metrics struct {
+		Raw       json.RawMessage `json:"raw"`
+		Effective json.RawMessage `json:"effective"`
+	} `json:"metrics"`
 }
 
 func createRun(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	var body map[string]json.RawMessage
-	if err := readJSON(r, &body); err != nil {
+	var payload incomingRun
+	if err := readJSON(w, r, &payload); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -101,37 +102,22 @@ func createRun(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	id := strings.Trim(string(body["id"]), `"`)
-	startedAt := strings.Trim(string(body["startedAt"]), `"`)
-	durationMs := int64(0)
-	json.Unmarshal(body["durationMs"], &durationMs) //nolint
-	status := strings.Trim(string(body["status"]), `"`)
-
 	var cfg struct {
 		GameType string `json:"gameType"`
 	}
-	json.Unmarshal(body["configuration"], &cfg) //nolint
+	json.Unmarshal(payload.Configuration, &cfg) //nolint
 
-	var src struct {
-		ID string `json:"id"`
-	}
-	json.Unmarshal(body["source"], &src) //nolint
+	rawM, _ := json.Marshal(payload.Metrics.Raw)
+	effM, _ := json.Marshal(payload.Metrics.Effective)
 
-	target := strings.Trim(string(body["target"]), `"`)
-
-	var metrics map[string]json.RawMessage
-	json.Unmarshal(body["metrics"], &metrics) //nolint
-	rawM, _ := json.Marshal(metrics["raw"])
-	effM, _ := json.Marshal(metrics["effective"])
-
-	events := body["events"]
+	events := payload.Events
 	if len(events) == 0 {
 		events = json.RawMessage("[]")
 	}
 
 	var sourceID *string
-	if src.ID != "" {
-		sourceID = &src.ID
+	if payload.Source.ID != "" {
+		sourceID = &payload.Source.ID
 	}
 
 	_, err := db.Exec(`
@@ -140,8 +126,8 @@ func createRun(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		   target,events,raw_metrics,effective_metrics)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
 		ON CONFLICT (id) DO NOTHING`,
-		id, sourceID, startedAt, durationMs, status, cfg.GameType,
-		body["configuration"], target, events, rawM, effM,
+		payload.ID, sourceID, payload.StartedAt, payload.DurationMs, payload.Status, cfg.GameType,
+		payload.Configuration, payload.Target, events, rawM, effM,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

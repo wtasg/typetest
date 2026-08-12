@@ -1,6 +1,12 @@
 const API_BASE = (import.meta as Record<string, unknown> & { env: Record<string, string> }).env
     .VITE_API_BASE ?? 'http://localhost:30001';
 
+export function isLocalhost(): boolean {
+    if (typeof window === 'undefined') return false;
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+}
+
 let _online = false;
 const _listeners = new Set<(online: boolean) => void>();
 let _timer: ReturnType<typeof setInterval> | null = null;
@@ -13,6 +19,10 @@ export function onServerStatusChange(cb: (online: boolean) => void): () => void 
 }
 
 export function startHealthCheck(intervalMs = 15_000): void {
+    if (!isLocalhost()) {
+        notify(false);
+        return;
+    }
     checkHealth();
     _timer = setInterval(checkHealth, intervalMs);
 }
@@ -22,6 +32,10 @@ export function stopHealthCheck(): void {
 }
 
 async function checkHealth(): Promise<void> {
+    if (!isLocalhost()) {
+        notify(false);
+        return;
+    }
     try {
         const res = await fetch(`${API_BASE}/api/health`, {
             signal: AbortSignal.timeout(4_000),

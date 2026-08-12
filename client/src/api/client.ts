@@ -1,9 +1,13 @@
 import { CompletedRun, Source } from '../typing/types';
+import { isLocalhost } from './health';
 
 const API_BASE = (import.meta as Record<string, unknown> & { env: Record<string, string> }).env
     .VITE_API_BASE ?? 'http://localhost:30001';
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
+    if (!isLocalhost()) {
+        throw new Error(`API calls disabled on non-localhost hostname (${window?.location?.hostname ?? 'unknown'})`);
+    }
     const res = await fetch(`${API_BASE}${path}`, {
         headers: { 'Content-Type': 'application/json' },
         ...init,

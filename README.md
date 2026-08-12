@@ -1,7 +1,6 @@
 # Typing Test
 
-> **Live demo:** <https://wtasg.github.io/typetest>  
-> **Repo:** <https://github.com/wtasg/typetest>
+[Live demo (client only): wtasg.github.io/typetest](https://wtasg.github.io/typetest) | [Repo: gh/wtasg/typetest](https://github.com/wtasg/typetest)
 
 A distraction-free typing practice app for programmers. Offline-first, runs entirely in the browser, with optional PostgreSQL persistence via a Go API server.
 
@@ -33,7 +32,7 @@ cd client && npm install
 ./scripts/test.sh --execute
 ```
 
-All scripts default to **dry-run**. Pass `--execute` to actually run.
+All scripts default to dry-run. Pass `--execute` to actually run.
 
 ## Features
 
@@ -89,3 +88,15 @@ DB_PASSWORD=your_db_password
 ```
 
 Database credentials are stored only in the `.env` file (local development) and never included in the client bundle or version control.
+
+## Local Network Access prompt
+
+![Local Network Access prompt](/images/Screenshot%20from%202026-08-12%2010-57-44.png)
+
+This is Chrome's Local Network Access prompt, not anything malicious. The app makes network requests to your own local Go API server at http://localhost:30001 (the optional PostgreSQL sync backend):
+
+- On startup it polls the server every 15s: initApp() → startHealthCheck(15_000) → fetch('http://localhost:30001/api/health') (client/src/api/health.ts:26, client/src/state/app.ts:11)
+- After each run it POSTs the result: persistAndSync() → postRun() → fetch('http://localhost:30001/api/runs') (client/src/storage/sync.ts:9, client/src/state/typing.ts:145)
+- Sources are also POSTed/DELETEd to localhost:30001/api/sources (client/src/api/client.ts:20)
+
+When the page is served over HTTPS (e.g. the GitHub Pages demo), Chrome treats the connection to the device-local localhost port as "accessing other apps and services on this device" and asks for permission. The request targets your own server, which is fully optional - the app works offline-first without it. You can deny the prompt safely, or remove the server entirely and the app still functions.

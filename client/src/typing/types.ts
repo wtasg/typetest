@@ -142,3 +142,35 @@ export interface RunSummary {
         effective: Pick<EffectiveMetrics, 'effectiveWPM' | 'accuracy' | 'correctChars'>;
     };
 }
+
+// ─── Analytics & Reports Data Types ─────────────────────────────────────────
+
+export interface AggregateStats {
+    totalRuns: number;
+    avgWpm: number;
+    bestWpm: number;
+    avgAccuracy: number;
+}
+
+export interface TimingStats {
+    samples: number;
+    mean: number;
+    stdDev: number;
+    min: number;
+    max: number;
+    p50: number;
+    p90: number;
+    p95: number;
+    p99: number;
+}
+
+export type ReportTab = 'previous' | 'previous2' | '7days' | '30days' | 'alltime';
+
+export type KeyFrequencyMap = Record<string, number>;
+
+export interface HistogramBin {
+    binStart: number;
+    binEnd: number;
+    count: number;
+}
+

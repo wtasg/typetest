@@ -37,17 +37,17 @@ const RunResults: Component = () => {
                 </div>
                 <div class="metric">
                     <span class="metric-label">Accuracy</span>
-                    <span class="metric-value">{runState.accuracy.toFixed(1)}%</span>
+                    <span class="metric-value">{(runState.accuracy ?? 0).toFixed(1)}%</span>
                 </div>
                 <div class="metric">
                     <span class="metric-label">Duration</span>
-                    <span class="metric-value">{(runState.elapsedMs / 1000).toFixed(1)}s</span>
+                    <span class="metric-value">{((runState.elapsedMs ?? 0) / 1000).toFixed(1)}s</span>
                 </div>
                 <div class="metric">
                     <span class="metric-label">Correct chars</span>
                     <span class="metric-value">
-                        {runState.charStates.filter(s => s === 'correct').length}
-                        <span style="font-size:0.9rem;color:var(--fg-dim)"> / {runState.target.length}</span>
+                        {runState.charStates?.filter(s => s === 'correct').length ?? 0}
+                        <span style="font-size:0.9rem;color:var(--fg-dim)"> / {runState.target?.length ?? 0}</span>
                     </span>
                 </div>
             </div>
@@ -55,7 +55,7 @@ const RunResults: Component = () => {
                 {runState.fullFile
                     ? 'Full file'
                     : runState.selection
-                        ? `Selection (${runState.selection.start}–${runState.selection.end})`
+                        ? `Selection (${runState.selection.start ?? 0}–${runState.selection.end ?? 0})`
                         : ''}
             </p>
             <button ref={restartBtnRef} class="btn-restart" onClick={resetRun}>New Run</button>

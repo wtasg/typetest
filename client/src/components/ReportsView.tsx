@@ -26,8 +26,7 @@ const ReportsView: Component = () => {
     const [ikis, setIkis] = createStore<{ data: number[]; target: string }>({ data: [], target: '' });
 
     onMount(async () => {
-        refreshReports();
-        // load IKI + target from the most recent full run in IDB
+        await refreshReports();
         const runs = await getAllRuns();
         if (runs.length) {
             const latest = runs.sort((a, b) =>
@@ -42,8 +41,8 @@ const ReportsView: Component = () => {
     const last30 = () => all().filter(s => new Date(s.startedAt).getTime() > cutoff(30));
 
     function AggStats(props: { runs: RunSummary[] }) {
-        const wpms = () => props.runs.map(r => r.metrics.effective.effectiveWPM);
-        const accs = () => props.runs.map(r => r.metrics.effective.accuracy);
+        const wpms = () => props.runs.map(r => r.metrics?.effective?.effectiveWPM ?? 0);
+        const accs = () => props.runs.map(r => r.metrics?.effective?.accuracy ?? 0);
         return (
             <div class="aggregate-stats">
                 <div class="aggregate-stat"><div class="label">Runs</div><div class="value">{props.runs.length}</div></div>
@@ -61,13 +60,13 @@ const ReportsView: Component = () => {
                     {r => (
                         <div class="run-row">
                             <span class="run-date">{fmtDate(r.startedAt)}</span>
-                            <span class="run-wpm">{r.metrics.effective.effectiveWPM} WPM</span>
-                            <span class="run-acc">{r.metrics.effective.accuracy.toFixed(1)}% acc</span>
-                            <span style="color:var(--fg-dim);font-size:0.8rem">{r.sourceName}</span>
+                            <span class="run-wpm">{r.metrics?.effective?.effectiveWPM ?? 0} WPM</span>
+                            <span class="run-acc">{(r.metrics?.effective?.accuracy ?? 0).toFixed(1)}% acc</span>
+                            <span style="color:var(--fg-dim);font-size:0.8rem">{r.sourceName ?? 'Unknown source'}</span>
                             <span class="run-selection-tag">
-                                {r.fullFile ? 'full' : `sel ${r.selection.start}–${r.selection.end}`}
+                                {r.fullFile || !r.selection ? 'full' : `sel ${r.selection.start ?? 0}–${r.selection.end ?? 0}`}
                             </span>
-                            <span style="color:var(--fg-dim);font-size:0.8rem">{r.gameType}</span>
+                            <span style="color:var(--fg-dim);font-size:0.8rem">{r.gameType ?? 'normal'}</span>
                         </div>
                     )}
                 </For>
@@ -139,15 +138,21 @@ const ReportsView: Component = () => {
             })()}
 
             {tab() === '7days' && (
-                <><AggStats runs={last7()} /><AggCharts runs={last7()} /><RunList runs={last7()} /></>
+                last7().length
+                    ? <><AggStats runs={last7()} /><AggCharts runs={last7()} /><RunList runs={last7()} /></>
+                    : <p class="empty-state">No runs in the last 7 days.</p>
             )}
 
             {tab() === '30days' && (
-                <><AggStats runs={last30()} /><AggCharts runs={last30()} /><RunList runs={last30()} /></>
+                last30().length
+                    ? <><AggStats runs={last30()} /><AggCharts runs={last30()} /><RunList runs={last30()} /></>
+                    : <p class="empty-state">No runs in the last 30 days.</p>
             )}
 
             {tab() === 'alltime' && (
-                <><AggStats runs={all()} /><AggCharts runs={all()} /><RunList runs={all()} /></>
+                all().length
+                    ? <><AggStats runs={all()} /><AggCharts runs={all()} /><RunList runs={all()} /></>
+                    : <p class="empty-state">No runs recorded yet.</p>
             )}
         </div>
     );

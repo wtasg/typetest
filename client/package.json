@@ -14,13 +14,16 @@
         "predeploy": "VITE_BASE=/typetest/ vite build",
         "deploy": "gh-pages -d dist",
         "preview": "vite preview --port 30002",
-        "test": "vitest run"
+        "test": "vitest run",
+        "test:e2e": "playwright test"
     },
     "dependencies": {
         "d3": "^7.9.0",
         "solid-js": "^1.9.14"
     },
     "devDependencies": {
+        "@playwright/test": "^1.62.1",
+        "@types/d3": "^7.4.3",
         "gh-pages": "^6.3.0",
         "typescript": "^7.0.2",
         "vite": "^8.2.1",

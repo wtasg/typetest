@@ -1,0 +1,82 @@
+================================================================================
+                    KEYBOARD CAPTURE & ARCHITECTURE DIAGRAMS
+================================================================================
+
+1. COMPLETE EVENT PIPELINE & STATE FLOW
+--------------------------------------------------------------------------------
+
+                     Transition to RUNNING State
+                                   │
+                                   ▼
+                Mount <TypingArea> & focus <textarea.typing-capture>
+                                   │
+       ┌───────────────────────────┴───────────────────────────┐
+       │ (User Keystroke)                                      │ (Blur Event)
+       ▼                                                       ▼
+┌────────────────────────────────┐           ┌───────────────────────────────────┐
+│ <textarea> handleKeyDown       │           │ handleBlur (deferred, setTimeout) │
+│  ├─ Is Paste? (Ctrl/Cmd+V...)  │           │  ├─ document.hasFocus() false?    │
+│  │   └─ e.preventDefault()     │           │  │   └─ Focus left window ➔ Return│
+│  ├─ Is AltGr? (Ctrl+Alt OR     │           │  └─ activeElement interactive?    │
+│  │   getModifierState('AltGraph'))         │     (button, a, input, [tabindex])│
+│  │   └─ Process character      │           │     ├─ Yes ➔ Allow blur (e.g. Stop)
+│  ├─ Is Ctrl/Cmd shortcut?      │           │     └─ No  ➔ captureRef.focus()   │
+│  │   └─ Pass through (Ctrl+C)  │           └───────────────────────────────────┘
+│  ├─ e.preventDefault()         │
+│  └─ sendKey(key, code)         │
+└──────────────┬─────────────────┘
+               │
+               ▼
+         Typing Engine ──► Updates runState store
+                                 │
+                                 ▼
+                          TypingText (UI)
+
+[Safety Net: onInput ➔ clears textarea value if untracked input bypasses keydown]
+
+
+2. KEYDOWN EVENT PROCESSING FLOW
+--------------------------------------------------------------------------------
+
+                    Keystroke Received (keydown)
+                               │
+                               ▼
+                    Is Paste (Ctrl+V / Cmd+V / Shift+Insert)?
+                      ├── Yes ──► e.preventDefault() ──► Return (Block paste)
+                      └── No
+                           │
+                           ▼
+                    Is Ctrl/Cmd Shortcut (and NOT AltGr)?
+                      ├── Yes ──► Pass through (e.g. Ctrl+C / Ctrl+T) ──► Return
+                      └── No
+                           │
+                           ▼
+                    e.preventDefault() (Stop native textarea character insertion)
+                           │
+                           ▼
+                    sendKey(e.key, e.code) ──► TypingEngine
+
+
+3. FOCUS RETENTION & BLUR DECISION FLOW
+-------------------------------------------------------------------------------
+
+                        Blur Event Triggered
+                                 │
+                                 ▼
+                   Defer to next macrotask (setTimeout)
+                                 │
+                                 ▼
+                    document.hasFocus() == false?
+                     (Alt+Tab, DevTools, URL bar)
+                       ├── Yes ──► Do Not Steal Focus
+                       └── No
+                            │
+                            ▼
+              Is activeElement interactive (button, a, input, select, textarea, [tabindex])?
+                ├── Yes ──► Skip Refocus ──► Allow Focus Transfer (e.g. Stop Button)
+                └── No
+                     │
+                     ▼
+              Is Run Status === 'RUNNING'?
+                ├── Yes ──► captureRef.focus() (Restore keyboard capture)
+                └── No  ──► Do Nothing

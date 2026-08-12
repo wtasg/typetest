@@ -5,23 +5,62 @@ import TypingText from './TypingText';
 import RunControls from './RunControls';
 
 const TypingArea: Component = () => {
-    let divRef!: HTMLDivElement;
+    let captureRef!: HTMLTextAreaElement;
 
-    onMount(() => divRef.focus());
+    onMount(() => {
+        if (runState.status === 'RUNNING') {
+            captureRef?.focus();
+        }
+    });
 
     function handleKeyDown(e: KeyboardEvent): void {
-        if (e.key === 'Tab') e.preventDefault();
-        if (e.ctrlKey || e.metaKey) return;
+        const isPaste =
+            ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') ||
+            (e.shiftKey && e.key === 'Insert');
+
+        if (isPaste) {
+            e.preventDefault();
+            return;
+        }
+
+        const isAltGr = (e.ctrlKey && e.altKey) || Boolean(e.getModifierState?.('AltGraph'));
+        if ((e.ctrlKey || e.metaKey) && !isAltGr) {
+            return;
+        }
+
+        e.preventDefault();
         sendKey(e.key, e.code);
     }
 
+    function handleBlur(): void {
+        setTimeout(() => {
+            if (!document.hasFocus()) return;
+            const el = document.activeElement as HTMLElement | null;
+            if (runState.status === 'RUNNING'
+                && el !== captureRef
+                && !el?.closest('button, a, input, select, textarea, [tabindex]')) {
+                captureRef.focus();
+            }
+        });
+    }
+
     return (
-        <div
-            ref={divRef}
-            class="typing-area-wrapper"
-            tabIndex={0}
-            onKeyDown={handleKeyDown}
-        >
+        <div class="typing-area-wrapper">
+            <textarea
+                ref={captureRef}
+                class="typing-capture"
+                aria-label="Typing input"
+                spellcheck={false}
+                autocorrect="off"
+                autocapitalize="off"
+                autocomplete="off"
+                wrap="off"
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+                onPaste={e => e.preventDefault()}
+                onDrop={e => e.preventDefault()}
+                onInput={e => { e.currentTarget.value = ''; }}
+            />
             <RunControls />
             <TypingText
                 target={runState.target}

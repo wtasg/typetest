@@ -256,6 +256,25 @@ body {
     min-height: 100%;
 }
 
+.typing-capture {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: transparent;
+    opacity: 0;
+    pointer-events: none;
+    clip-path: inset(50%);
+    resize: none;
+    overflow: hidden;
+    caret-color: transparent;
+}
+
 /* ── Run controls ── */
 .run-controls {
     display: flex;

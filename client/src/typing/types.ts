@@ -60,6 +60,14 @@ export const DEFAULT_CONFIG: GameConfig = {
 
 // ─── Sources ─────────────────────────────────────────────────────────────────
 
+/** Contiguous character range within a source's raw content. */
+export interface TextSelection {
+    /** Inclusive 0-based character index. */
+    startOffset: number;
+    /** Exclusive 0-based character index. */
+    endOffset: number;
+}
+
 export interface Source {
     id: string;
     name: string;
@@ -124,6 +132,10 @@ export interface RunSummary {
     syncStatus: SyncStatus;
     sourceId: string;
     sourceName: string;
+    /** Raw offsets into the source content; {start:0,end:len} for full-file runs. */
+    selection: { start: number; end: number };
+    /** True when the run practiced the entire source content. */
+    fullFile: boolean;
     gameType: GameType;
     metrics: {
         raw: Pick<RawMetrics, 'rawWPM' | 'totalKeystrokes'>;

@@ -1,20 +1,18 @@
 import { createStore } from 'solid-js/store';
-import { Source } from '../typing/types';
+import { Source, TextSelection } from '../typing/types';
 import { loadSourcesMeta, saveSourcesMeta } from '../storage/localStorage';
 import { saveSource, getSourceContent, deleteSourceContent } from '../storage/indexedDb';
 
 interface SourcesState {
     sources: Source[];
     selectedId: string | null;
-    selectionStart: number;
-    selectionEnd: number;
+    selection: TextSelection | null;
 }
 
 const [sourcesState, setSourcesState] = createStore<SourcesState>({
     sources: loadSourcesMeta(),
     selectedId: null,
-    selectionStart: 0,
-    selectionEnd: -1,
+    selection: null,
 });
 
 export { sourcesState };
@@ -35,17 +33,26 @@ export async function addSource(name: string, filename: string, content: string)
     return source;
 }
 
-export function selectSource(id: string, start = 0, end = -1): void {
-    setSourcesState({ selectedId: id, selectionStart: start, selectionEnd: end });
+export function selectSource(id: string): void {
+    setSourcesState({ selectedId: id, selection: null });
+}
+
+export function setSourceSelection(selection: TextSelection | null): void {
+    setSourcesState('selection', selection);
+}
+
+export function resetSourceSelection(): void {
+    setSourcesState('selection', null);
 }
 
 export async function getSelectedContent(): Promise<string | null> {
     if (!sourcesState.selectedId) return null;
     const stored = await getSourceContent(sourcesState.selectedId);
     if (!stored) return null;
-    const { selectionStart, selectionEnd } = sourcesState;
-    return selectionEnd < 0 ? stored.content.slice(selectionStart)
-        : stored.content.slice(selectionStart, selectionEnd);
+    const sel = sourcesState.selection;
+    return sel === null
+        ? stored.content
+        : stored.content.slice(sel.startOffset, sel.endOffset);
 }
 
 export async function updateSource(id: string, name: string, content: string): Promise<void> {
@@ -58,6 +65,9 @@ export async function updateSource(id: string, name: string, content: string): P
     meta[idx] = updated;
     saveSourcesMeta(meta);
     setSourcesState('sources', [...meta]);
+    if (sourcesState.selectedId === id) {
+        setSourcesState('selection', null);
+    }
 }
 
 export function removeSource(id: string): void {
@@ -66,7 +76,7 @@ export function removeSource(id: string): void {
     setSourcesState('sources', meta);
     deleteSourceContent(id).catch(() => { });
     if (sourcesState.selectedId === id) {
-        setSourcesState({ selectedId: null, selectionStart: 0, selectionEnd: -1 });
+        setSourcesState({ selectedId: null, selection: null });
     }
 }
 

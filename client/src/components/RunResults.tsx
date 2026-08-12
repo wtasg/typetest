@@ -37,6 +37,13 @@ const RunResults: Component = () => {
                     </span>
                 </div>
             </div>
+            <p class="run-selection-label">
+                {runState.fullFile
+                    ? 'Full file'
+                    : runState.selection
+                        ? `Selection (${runState.selection.start}–${runState.selection.end})`
+                        : ''}
+            </p>
             <button class="btn-restart" onClick={resetRun}>New Run</button>
         </div>
     );

@@ -520,8 +520,122 @@ body {
 }
 
 /* ── Source setup ── */
-.source-setup h2 {
-    margin-bottom: 1rem;
+.source-setup {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    min-height: 100%;
+}
+
+.source-setup > .source-list {
+    width: 220px;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.source-viewer-pane {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+.source-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.source-header h3 {
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.source-viewer {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: auto;
+    max-height: 500px;
+    font-family: var(--font);
+}
+
+.line-number-gutter {
+    user-select: none;
+    -webkit-user-select: none;
+    padding: .5rem;
+    background: var(--bg-surface);
+    color: var(--fg-dim);
+    text-align: right;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+    line-height: 1.5;
+}
+
+.source-content-pre {
+    margin: 0;
+    padding: .5rem;
+    white-space: pre;
+    font-family: inherit;
+    line-height: 1.5;
+    user-select: text;
+    -webkit-user-select: text;
+    flex-grow: 1;
+}
+
+.selection-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.selection-meta {
+    color: var(--fg-dim);
+    font-size: .85rem;
+}
+
+.btn-practice-all,
+.btn-practice-selection {
+    padding: .35rem .9rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: none;
+    color: var(--fg);
+    cursor: pointer;
+    font-size: .88rem;
+    white-space: nowrap;
+}
+
+.btn-practice-all:hover,
+.btn-practice-selection:hover:not(:disabled) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+}
+
+.btn-practice-selection:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.run-selection-label {
+    margin: .4rem 0 .9rem;
+    color: var(--fg-dim);
+    font-size: .82rem;
+    text-align: center;
+}
+
+.run-selection-tag {
+    color: var(--fg-dim);
+    font-size: .75rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0 .35rem;
 }
 
 /* ── Settings ── */

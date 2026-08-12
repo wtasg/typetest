@@ -17,6 +17,8 @@ export interface RunState {
     effectiveWPM: number;
     rawWPM: number;
     accuracy: number;
+    selection: { start: number; end: number } | null;
+    fullFile: boolean;
 }
 
 const [runState, setRunState] = createStore<RunState>({
@@ -28,6 +30,8 @@ const [runState, setRunState] = createStore<RunState>({
     effectiveWPM: 0,
     rawWPM: 0,
     accuracy: 100,
+    selection: null,
+    fullFile: false,
 });
 
 export { runState };
@@ -36,6 +40,9 @@ let _engine: TypingEngine | null = null;
 let _ticker: ReturnType<typeof setInterval> | null = null;
 let _activeSourceId = '';
 let _activeSourceName = '';
+let _activeStartOffset = 0;
+let _activeEndOffset = 0;
+let _activeFullFile = false;
 let _wasEverIncorrect: boolean[] = [];
 
 export function startRun(
@@ -44,10 +51,14 @@ export function startRun(
     sourceName: string,
     startOffset = 0,
     endOffset = 0,
+    fullFile = false,
 ): void {
     _engine?.reset();
     _activeSourceId = sourceId;
     _activeSourceName = sourceName;
+    _activeStartOffset = startOffset;
+    _activeEndOffset = endOffset;
+    _activeFullFile = fullFile;
     _wasEverIncorrect = [];
 
     _engine = new TypingEngine({ ...settings }, {
@@ -84,6 +95,7 @@ export function resetRun(): void {
     setRunState({
         status: 'READY', target: '', charStates: [], cursor: 0,
         elapsedMs: 0, effectiveWPM: 0, rawWPM: 0, accuracy: 100,
+        selection: null, fullFile: false,
     });
 }
 
@@ -113,6 +125,8 @@ async function finalizeRun(snap: EngineSnapshot, status: RunStatus): Promise<voi
         effectiveWPM: effectiveMetrics.effectiveWPM,
         rawWPM: rawMetrics.rawWPM,
         accuracy: effectiveMetrics.accuracy,
+        selection: { start: _activeStartOffset, end: _activeEndOffset },
+        fullFile: _activeFullFile,
     });
 
     const run: CompletedRun = {
@@ -120,7 +134,11 @@ async function finalizeRun(snap: EngineSnapshot, status: RunStatus): Promise<voi
         startedAt: snap.startedAt?.toISOString() ?? new Date().toISOString(),
         durationMs: snap.elapsedMs,
         configuration: { ...settings },
-        source: { id: _activeSourceId, name: _activeSourceName, selection: { start: 0, end: 0 } },
+        source: {
+            id: _activeSourceId,
+            name: _activeSourceName,
+            selection: { start: _activeStartOffset, end: _activeEndOffset },
+        },
         target: snap.target,
         events: snap.events,
         metrics: { raw: rawMetrics, effective: effectiveMetrics },
@@ -134,6 +152,8 @@ async function finalizeRun(snap: EngineSnapshot, status: RunStatus): Promise<voi
         id: run.id, startedAt: run.startedAt, durationMs: run.durationMs,
         status, syncStatus: 'pending',
         sourceId: _activeSourceId, sourceName: _activeSourceName,
+        selection: { start: _activeStartOffset, end: _activeEndOffset },
+        fullFile: _activeFullFile,
         gameType: settings.gameType,
         metrics: {
             raw: { rawWPM: rawMetrics.rawWPM, totalKeystrokes: rawMetrics.totalKeystrokes },

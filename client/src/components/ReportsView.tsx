@@ -64,6 +64,9 @@ const ReportsView: Component = () => {
                             <span class="run-wpm">{r.metrics.effective.effectiveWPM} WPM</span>
                             <span class="run-acc">{r.metrics.effective.accuracy.toFixed(1)}% acc</span>
                             <span style="color:var(--fg-dim);font-size:0.8rem">{r.sourceName}</span>
+                            <span class="run-selection-tag">
+                                {r.fullFile ? 'full' : `sel ${r.selection.start}–${r.selection.end}`}
+                            </span>
                             <span style="color:var(--fg-dim);font-size:0.8rem">{r.gameType}</span>
                         </div>
                     )}

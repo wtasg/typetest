@@ -1,12 +1,12 @@
 import { Component } from 'solid-js';
-import { setCurrentView } from '../state/app';
+import { setCurrentView, navigateToTyping } from '../state/app';
 import FileUploader from './FileUploader';
 import TextEditor from './TextEditor';
 
 const Sidebar: Component = () => (
     <nav class="sidebar">
         <ul class="sidebar-nav">
-            <li><button onClick={() => setCurrentView('typing')}>Typing</button></li>
+            <li><button onClick={navigateToTyping}>Typing</button></li>
             <li><button onClick={() => setCurrentView('reports')}>Reports</button></li>
         </ul>
         <div class="sidebar-section">
@@ -23,3 +23,4 @@ const Sidebar: Component = () => (
 );
 
 export default Sidebar;
+

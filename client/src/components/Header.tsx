@@ -1,5 +1,5 @@
 import { Component } from 'solid-js';
-import { serverOnline, setCurrentView } from '../state/app';
+import { serverOnline, navigateToTyping } from '../state/app';
 import { settings, updateSettings } from '../state/settings';
 
 const TAB_OPTIONS = [
@@ -11,7 +11,7 @@ const TAB_OPTIONS = [
 
 const Header: Component = () => (
     <header class="header">
-        <button class="app-title" onClick={() => setCurrentView('typing')}>Typing Test</button>
+        <button class="app-title" onClick={navigateToTyping}>Typing Test</button>
         <div class="header-right">
             <select
                 class="tab-select"
@@ -32,3 +32,4 @@ const Header: Component = () => (
 );
 
 export default Header;
+

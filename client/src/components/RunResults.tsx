@@ -1,7 +1,21 @@
-import { Component } from 'solid-js';
+import { Component, onMount, onCleanup } from 'solid-js';
 import { runState, resetRun } from '../state/typing';
 
 const RunResults: Component = () => {
+    let restartBtnRef!: HTMLButtonElement;
+
+    onMount(() => {
+        restartBtnRef?.focus();
+        function handleKeyDown(e: KeyboardEvent): void {
+            if (e.key === 'Enter' || e.key === 'Escape') {
+                e.preventDefault();
+                resetRun();
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown);
+        onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
+    });
+
     const statusLabel: Record<string, string> = {
         COMPLETED: 'Completed',
         MANUAL_STOP: 'Stopped',
@@ -44,9 +58,10 @@ const RunResults: Component = () => {
                         ? `Selection (${runState.selection.start}–${runState.selection.end})`
                         : ''}
             </p>
-            <button class="btn-restart" onClick={resetRun}>New Run</button>
+            <button ref={restartBtnRef} class="btn-restart" onClick={resetRun}>New Run</button>
         </div>
     );
 };
 
 export default RunResults;
+

@@ -37,6 +37,7 @@ const TypingArea: Component = () => {
             if (!document.hasFocus()) return;
             const el = document.activeElement as HTMLElement | null;
             if (runState.status === 'RUNNING'
+                && captureRef?.isConnected
                 && el !== captureRef
                 && !el?.closest('button, a, input, select, textarea, [tabindex]')) {
                 captureRef.focus();
